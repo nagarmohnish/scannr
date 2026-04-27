@@ -1,5 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 
+// ─── IP rate limiting ─────────────────────────────────────────────────────────
+
+interface RateLimitEntry { count: number; resetTime: number }
+const researchRateLimitMap = new Map<string, RateLimitEntry>();
+const RESEARCH_RATE_LIMIT_MAX = 10;
+const RESEARCH_RATE_LIMIT_WINDOW_MS = 24 * 60 * 60 * 1000;
+
+function checkResearchRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const entry = researchRateLimitMap.get(ip);
+  if (!entry || now > entry.resetTime) {
+    researchRateLimitMap.set(ip, { count: 1, resetTime: now + RESEARCH_RATE_LIMIT_WINDOW_MS });
+    return true;
+  }
+  if (entry.count >= RESEARCH_RATE_LIMIT_MAX) return false;
+  entry.count++;
+  return true;
+}
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface ResearchData {
@@ -143,6 +162,14 @@ export async function fetchResearchData(
 // ─── Route handler ────────────────────────────────────────────────────────────
 
 export async function POST(request: NextRequest) {
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0].trim() ?? "unknown";
+  if (!checkResearchRateLimit(ip)) {
+    return NextResponse.json(
+      { error: "rate_limit", message: "Too many requests. Try again in 24 hours." },
+      { status: 429 }
+    );
+  }
+
   try {
     const body = await request.json();
     const { industry, companyName } = body;

@@ -4,21 +4,71 @@ import { supabaseAdmin } from "@/lib/supabase-admin";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-export async function POST(request: NextRequest) {
-  try {
-    const { email, domain, score } = await request.json();
+// ─── IP rate limiting: 10 per IP per hour ────────────────────────────────────
 
-    if (!email || typeof email !== "string") {
-      return NextResponse.json({ error: "email is required" }, { status: 400 });
+interface RateLimitEntry { count: number; resetTime: number }
+const leadRateMap = new Map<string, RateLimitEntry>();
+const LEAD_RATE_LIMIT_MAX = 10;
+const LEAD_RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
+
+function checkLeadRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const entry = leadRateMap.get(ip);
+  if (!entry || now > entry.resetTime) {
+    leadRateMap.set(ip, { count: 1, resetTime: now + LEAD_RATE_LIMIT_WINDOW_MS });
+    return true;
+  }
+  if (entry.count >= LEAD_RATE_LIMIT_MAX) return false;
+  entry.count++;
+  return true;
+}
+
+// ─── Email validation ─────────────────────────────────────────────────────────
+
+function isValidEmail(email: string): boolean {
+  if (email.length > 254) return false;
+  const atIdx = email.indexOf("@");
+  if (atIdx < 1) return false;
+  const domain = email.slice(atIdx + 1);
+  return domain.includes(".") && domain.length > 2;
+}
+
+// ─── Route handler ────────────────────────────────────────────────────────────
+
+export async function POST(request: NextRequest) {
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0].trim() ?? "unknown";
+  if (!checkLeadRateLimit(ip)) {
+    return NextResponse.json(
+      { error: "rate_limit", message: "Too many requests. Try again later." },
+      { status: 429 }
+    );
+  }
+
+  try {
+    const body = await request.json();
+
+    // Sanitize and validate email
+    const email = typeof body.email === "string" ? body.email.trim() : "";
+    if (!email || !isValidEmail(email)) {
+      return NextResponse.json({ error: "Valid email is required" }, { status: 400 });
     }
+
+    // Sanitize domain
+    const domain =
+      typeof body.domain === "string" ? body.domain.trim().slice(0, 100) : null;
+
+    // Sanitize score
+    const rawScore = typeof body.score === "number" ? body.score : Number(body.score);
+    const score =
+      !isNaN(rawScore) && rawScore >= 0 && rawScore <= 100 ? rawScore : null;
 
     console.log(`[leads/capture] email="${email}" domain="${domain}" score=${score}`);
 
-    // Send notification email — fire and forget (don't block user on failure)
+    // Send notification email — fire and forget
     resend.emails.send({
-      from: "onboarding@resend.dev",
-      to: "vish686@gmail.com", // TODO: replace with your actual email
-      subject: "New sparrwo Lead 🎯",
+      from: "sparrwo@boringmonkee.com",
+      to: "vishal@boringmonkee.com",
+      subject: "New sparrwo Lead",
       text: [
         "New scan completed!",
         "",
@@ -34,7 +84,7 @@ export async function POST(request: NextRequest) {
     // Save lead to Supabase
     await supabaseAdmin
       .from("leads")
-      .insert({ email, domain: domain ?? null, score: score ?? null })
+      .insert({ email, domain, score })
       .then(({ error }) => {
         if (error) console.error("[leads/capture] Supabase insert error:", error);
       });
