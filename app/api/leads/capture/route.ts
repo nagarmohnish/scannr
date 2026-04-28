@@ -81,6 +81,15 @@ export async function POST(request: NextRequest) {
       console.error("[leads/capture] Resend error:", err);
     });
 
+    // Add contact to Resend — triggers AIO Checker email sequence
+    resend.contacts.create({
+      email,
+      audienceId: 'c27baf71-4917-4f2b-8cd8-8f02387c1ffb',
+      unsubscribed: false,
+    }).catch((err: unknown) => {
+      console.error('[leads/capture] Resend contact error:', err);
+    });
+
     // Save lead to Supabase
     await supabaseAdmin
       .from("leads")
