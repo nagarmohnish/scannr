@@ -217,11 +217,39 @@ export default function Home() {
 
   // ── Render ───────────────────────────────────────────────────────────────────
 
+  const isStaticDemo = process.env.NEXT_PUBLIC_STATIC_DEMO === "true";
+  // GitHub Pages serves the site under a basePath (e.g. /scannr). Plain <a>
+  // tags don't get basePath prepended automatically, so we add it manually.
+  const bp = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+
   return (
     <main
       className="min-h-screen overflow-x-hidden"
       style={{ background: "#ffffff", color: "#0a0a0a" }}
     >
+      {/* Static demo banner — only visible on the GitHub Pages build */}
+      {isStaticDemo && (
+        <div
+          style={{
+            background: "#0a0a0a",
+            color: "#ffffff",
+            padding: "10px 16px",
+            fontFamily: "var(--font-sans, system-ui)",
+            fontSize: 13,
+            textAlign: "center",
+          }}
+        >
+          This is a static design preview · the scanner runs server-side and is
+          inert here.{" "}
+          <a
+            href={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/dashboard/`}
+            style={{ color: "#f97316", fontWeight: 600, textDecoration: "underline" }}
+          >
+            Open the dashboard →
+          </a>
+        </div>
+      )}
+
       {/* Nav */}
       <nav
         className="sticky top-0 z-40 px-6 py-4"
@@ -247,7 +275,7 @@ export default function Home() {
           {/* Nav CTA */}
           {user ? (
             <a
-              href="/dashboard"
+              href={`${bp}/dashboard`}
               style={{
                 background: "#0a0a0a",
                 color: "#ffffff",
@@ -269,7 +297,7 @@ export default function Home() {
             </a>
           ) : (
             <a
-              href="/login"
+              href={`${bp}/login`}
               style={{
                 background: "#0a0a0a",
                 color: "#ffffff",
@@ -327,7 +355,7 @@ export default function Home() {
               <span style={{ color: "#0a0a0a", fontWeight: 600 }}>Upgrade for unlimited scans.</span>
             </p>
             <a
-              href="/pricing"
+              href={`${bp}/pricing`}
               style={{
                 display: "inline-block",
                 background: "#f97316",
@@ -410,7 +438,7 @@ export default function Home() {
           </span>
           <span style={{ color: "#2a2a2a", margin: "0 10px" }}>·</span>
           <a
-            href="/privacy"
+            href={`${bp}/privacy`}
             style={{
               fontFamily: "var(--font-mono, monospace)",
               fontSize: 12,
@@ -425,7 +453,7 @@ export default function Home() {
           </a>
           <span style={{ color: "#2a2a2a", margin: "0 10px" }}>·</span>
           <a
-            href="/terms"
+            href={`${bp}/terms`}
             style={{
               fontFamily: "var(--font-mono, monospace)",
               fontSize: 12,

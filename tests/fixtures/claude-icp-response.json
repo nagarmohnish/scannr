@@ -1,0 +1,50 @@
+{
+  "businessProfile": {
+    "companyName": "Acme Compost",
+    "whatTheySell": "Certified compostable packaging for restaurants",
+    "industry": "Sustainable food packaging",
+    "geography": "India",
+    "businessModel": "B2B"
+  },
+  "icp": {
+    "primaryBuyer": "Restaurant procurement manager",
+    "buyerLocation": "Bangalore, Mumbai, Delhi",
+    "buyerCompanySize": "SMB",
+    "buyerPainPoint": "Need compliant compostable packaging",
+    "buyerContext": "Switching from plastic before regulatory deadline"
+  },
+  "prompts": {
+    "informational": [
+      "what is compostable packaging",
+      "how do certified compostable bags break down",
+      "why are restaurants switching to compostable food containers",
+      "are bioplastics actually compostable",
+      "what does cpcb certification mean for packaging",
+      "how does compostable packaging affect food safety"
+    ],
+    "discovery": [
+      "compostable packaging suppliers in bangalore",
+      "where to buy bulk compostable food containers in india",
+      "certified compostable packaging vendors for restaurants",
+      "acme compost bulk pricing bangalore",
+      "acme compost reviews",
+      "acme compost cutlery wholesale"
+    ],
+    "commercial": [
+      "best compostable packaging brands in india for restaurants",
+      "compare compostable food containers under 5 rupees",
+      "compostable vs biodegradable cutlery which is better for restaurants",
+      "wholesale compostable bag prices in bangalore",
+      "cheapest certified compostable packaging supplier india",
+      "compostable container roi for cloud kitchens"
+    ],
+    "transactional": [
+      "buy bulk compostable bags for restaurant bangalore",
+      "order certified compostable cutlery india wholesale",
+      "acme compost order online",
+      "acme compost delivery bangalore",
+      "acme compost contact sales",
+      "compostable food container fast delivery bangalore"
+    ]
+  }
+}

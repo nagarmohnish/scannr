@@ -6,7 +6,16 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "test:unit": "vitest run tests/unit",
+    "test:live": "cross-env-shell RUN_LIVE_TESTS=true vitest run tests/integration",
+    "test:live:claude": "cross-env-shell RUN_LIVE_TESTS=true vitest run tests/integration/claude.live.test.ts",
+    "test:live:openai": "cross-env-shell RUN_LIVE_TESTS=true vitest run tests/integration/openai.live.test.ts",
+    "test:live:gemini": "cross-env-shell RUN_LIVE_TESTS=true vitest run tests/integration/gemini.live.test.ts",
+    "test:live:perplexity": "cross-env-shell RUN_LIVE_TESTS=true vitest run tests/integration/perplexity.live.test.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.82.0",
@@ -33,10 +42,15 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitest/ui": "^2.1.9",
+    "cross-env": "^10.1.0",
+    "dotenv": "^17.4.2",
     "eslint": "^9",
     "eslint-config-next": "16.2.2",
     "tailwindcss": "^4",
     "typescript": "^5",
-    "vercel": "^50.39.0"
+    "vercel": "^50.39.0",
+    "vite-tsconfig-paths": "^6.1.1",
+    "vitest": "^2.1.9"
   }
 }
